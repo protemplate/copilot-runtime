@@ -1,0 +1,38 @@
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Build output (will be generated during build)
+dist
+
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Environment files (should be set via environment variables in production)
+.env
+.env.*
+
+# IDE
+.vscode
+.idea
+
+# Logs
+logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage
+.nyc_output
+
+# Misc
+.dockerignore
+dockerfile 

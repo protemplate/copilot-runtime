@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  copilot-runtime:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: copilot-runtime-dev
+    ports:
+      - "3000:3000"
+    environment:
+      # Server Configuration
+      - PORT=3000
+      - NODE_ENV=development
+      
+      # OpenAI Configuration
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4-turbo}
+      
+      # Azure OpenAI Configuration
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY:-}
+      - AZURE_OPENAI_BASE_URL=${AZURE_OPENAI_BASE_URL:-}
+      - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION:-2024-04-01-preview}
+      
+      # Anthropic Configuration
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-3-5-sonnet-20241022}
+      
+      # Groq Configuration
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.1-70b-versatile}
+      
+      # Google Gemini Configuration
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - GOOGLE_MODEL=${GOOGLE_MODEL:-gemini-1.5-pro}
+      
+      # xAI Grok Configuration
+      - XAI_API_KEY=${XAI_API_KEY:-}
+      - XAI_MODEL=${XAI_MODEL:-grok-beta}
+      
+      # LangChain Configuration
+      - LANGCHAIN_OPENAI_API_KEY=${LANGCHAIN_OPENAI_API_KEY:-}
+      - LANGCHAIN_MODEL=${LANGCHAIN_MODEL:-gpt-4o}
+      
+      # OpenAI Assistant Configuration
+      - OPENAI_ASSISTANT_API_KEY=${OPENAI_ASSISTANT_API_KEY:-}
+      - OPENAI_ASSISTANT_ID=${OPENAI_ASSISTANT_ID:-}
+      - OPENAI_ORGANIZATION_ID=${OPENAI_ORGANIZATION_ID:-}
+      - OPENAI_CODE_INTERPRETER=${OPENAI_CODE_INTERPRETER:-false}
+      - OPENAI_FILE_SEARCH=${OPENAI_FILE_SEARCH:-false}
+      
+      # Development/Testing Configuration
+      - ENABLE_EMPTY_ADAPTER=${ENABLE_EMPTY_ADAPTER:-false}
+    
+    env_file:
+      - .env
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Optional: Mount source code for development (uncomment for live reload)
+    # volumes:
+    #   - ./src:/app/src:ro
+    #   - ./dist:/app/dist
+    
+    networks:
+      - copilot-network
+
+networks:
+  copilot-network:
+    driver: bridge 
