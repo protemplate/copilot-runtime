@@ -125,6 +125,7 @@ Available options: `openai`, `azure_openai`, `anthropic`, `groq`, `gemini`, `bed
 Configure Cross-Origin Resource Sharing (CORS) for frontend access:
 ```bash
 # Allow specific origins (recommended for production)
+# Don't add trailing slash ❌ http://localhost:3000/ ✅ http://localhost:3000
 CORS_ORIGINS=http://localhost:3000,https://yourdomain.com,https://www.yourdomain.com
 
 # Allow all origins (default if not specified - use with caution in production)
