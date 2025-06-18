@@ -36,18 +36,14 @@ const configureCORS = () => {
   return (req: Request, res: Response, next: () => void) => {
     const origin = req.headers.origin;
     
-    if (corsOrigins) {
-      // Parse multiple origins from comma-separated string
-      const allowedOrigins = corsOrigins
-        .split(',')
-        .map(origin => origin.trim())
-        .filter(origin => origin.length > 0);
-      
+    if (corsOrigins && corsOrigins.trim() !== '*') {
+      // Handle specific origins
+      const allowedOrigins = corsOrigins.split(',').map(origin => origin.trim());
       if (allowedOrigins.includes(origin as string)) {
         res.header('Access-Control-Allow-Origin', origin);
       }
     } else {
-      // Allow all origins
+      // Allow all origins (either no CORS_ORIGINS set or CORS_ORIGINS=*)
       res.header('Access-Control-Allow-Origin', '*');
     }
     
