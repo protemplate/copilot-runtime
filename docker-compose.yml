@@ -1,76 +1,52 @@
 version: '3.8'
 
 services:
-  copilot-runtime:
+  copilot-runtime-dev:
     build:
       context: .
       dockerfile: dockerfile
+      target: builder  # Use builder stage for development
     container_name: copilot-runtime-dev
     ports:
-      - "3000:3000"
-    environment:
-      # Server Configuration
-      - PORT=3000
-      - NODE_ENV=development
-      
-      # OpenAI Configuration
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4-turbo}
-      
-      # Azure OpenAI Configuration
-      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY:-}
-      - AZURE_OPENAI_BASE_URL=${AZURE_OPENAI_BASE_URL:-}
-      - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION:-2024-04-01-preview}
-      
-      # Anthropic Configuration
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-3-5-sonnet-20241022}
-      
-      # Groq Configuration
-      - GROQ_API_KEY=${GROQ_API_KEY:-}
-      - GROQ_MODEL=${GROQ_MODEL:-llama-3.1-70b-versatile}
-      
-      # Google Gemini Configuration
-      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
-      - GOOGLE_MODEL=${GOOGLE_MODEL:-gemini-1.5-pro}
-      
-      # xAI Grok Configuration
-      - XAI_API_KEY=${XAI_API_KEY:-}
-      - XAI_MODEL=${XAI_MODEL:-grok-beta}
-      
-      # LangChain Configuration
-      - LANGCHAIN_OPENAI_API_KEY=${LANGCHAIN_OPENAI_API_KEY:-}
-      - LANGCHAIN_MODEL=${LANGCHAIN_MODEL:-gpt-4o}
-      
-      # OpenAI Assistant Configuration
-      - OPENAI_ASSISTANT_API_KEY=${OPENAI_ASSISTANT_API_KEY:-}
-      - OPENAI_ASSISTANT_ID=${OPENAI_ASSISTANT_ID:-}
-      - OPENAI_ORGANIZATION_ID=${OPENAI_ORGANIZATION_ID:-}
-      - OPENAI_CODE_INTERPRETER=${OPENAI_CODE_INTERPRETER:-false}
-      - OPENAI_FILE_SEARCH=${OPENAI_FILE_SEARCH:-false}
-      
-      # Development/Testing Configuration
-      - ENABLE_EMPTY_ADAPTER=${ENABLE_EMPTY_ADAPTER:-false}
+      - "4000:4000"
+      - "9229:9229"  # Node.js debugger port
     
     env_file:
       - .env
     
+    # Development: mount source code for live reload
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/dist
+    
+    # Override the default command for development
+    command: npm run dev
+    
     restart: unless-stopped
     
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
     
-    # Optional: Mount source code for development (uncomment for live reload)
-    # volumes:
-    #   - ./src:/app/src:ro
-    #   - ./dist:/app/dist
-    
     networks:
       - copilot-network
+
+  # Optional: Add a simple web UI for testing
+  # copilot-ui:
+  #   image: nginx:alpine
+  #   container_name: copilot-ui-dev
+  #   ports:
+  #     - "8080:80"
+  #   volumes:
+  #     - ./public:/usr/share/nginx/html:ro
+  #   networks:
+  #     - copilot-network
+  #   depends_on:
+  #     - copilot-runtime-dev
 
 networks:
   copilot-network:

@@ -36,3 +36,6 @@ coverage
 # Misc
 .dockerignore
 dockerfile 
+
+example
+CopilotKit
