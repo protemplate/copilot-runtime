@@ -1,4 +1,4 @@
-import express, { Application, Request, response, Response } from "express";
+import express, { Application, Request, Response } from "express";
 import {
   CopilotRuntime,
   OpenAIAdapter,
@@ -17,6 +17,55 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app: Application = express();
+
+// Configure CORS manually
+const configureCORS = () => {
+  const corsOrigins = process.env.CORS_ORIGINS;
+  
+  // Log CORS configuration once during startup
+  if (corsOrigins) {
+    const allowedOrigins = corsOrigins
+      .split(',')
+      .map(origin => origin.trim())
+      .filter(origin => origin.length > 0);
+    console.log(`🔒 CORS configured for origins: ${allowedOrigins.join(', ')}`);
+  } else {
+    console.log('🌐 CORS configured to allow all origins (*)');
+  }
+  
+  return (req: Request, res: Response, next: () => void) => {
+    const origin = req.headers.origin;
+    
+    if (corsOrigins) {
+      // Parse multiple origins from comma-separated string
+      const allowedOrigins = corsOrigins
+        .split(',')
+        .map(origin => origin.trim())
+        .filter(origin => origin.length > 0);
+      
+      if (allowedOrigins.includes(origin as string)) {
+        res.header('Access-Control-Allow-Origin', origin);
+      }
+    } else {
+      // Allow all origins
+      res.header('Access-Control-Allow-Origin', '*');
+    }
+    
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', '*');
+    res.header('Access-Control-Allow-Headers', '*');
+    
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+      res.sendStatus(200);
+      return;
+    }
+    
+    next();
+  };
+};
+
+app.use(configureCORS());
 app.use(express.json());
 
 // Define adapter types for better type safety
@@ -248,6 +297,7 @@ console.log("    GOOGLE_API_KEY:", !!process.env.GOOGLE_API_KEY);
 console.log("    ANTHROPIC_API_KEY:", !!process.env.ANTHROPIC_API_KEY);
 console.log("    GROQ_API_KEY:", !!process.env.GROQ_API_KEY);
 console.log("    AWS_ACCESS_KEY_ID:", !!process.env.AWS_ACCESS_KEY_ID);
+console.log("    CORS_ORIGINS:", process.env.CORS_ORIGINS || "not set (allowing all)");
 console.log("    DEFAULT_PROVIDER:", process.env.DEFAULT_PROVIDER || "not set");
 console.log("  Selected default adapter:", defaultAdapterType);
 

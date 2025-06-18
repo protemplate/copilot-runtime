@@ -109,6 +109,7 @@ This Railway template provides a production-ready setup for self-hosting a Copil
 | `PORT` | Server port | `4000` | No |
 | `NODE_ENV` | Environment mode | `development` | No |
 | `DEFAULT_PROVIDER` | Override default provider | *first configured* | No |
+| `CORS_ORIGINS` | Allowed CORS origins (comma-separated) | *allow all* | No |
 
 ### Provider Priority
 Set `DEFAULT_PROVIDER` to specify which provider should handle the default `/api/copilotkit` endpoint:
@@ -119,6 +120,16 @@ DEFAULT_PROVIDER=bedrock    # Use AWS Bedrock as default
 ```
 
 Available options: `openai`, `azure_openai`, `anthropic`, `groq`, `gemini`, `bedrock`, `langchain`, `openai_assistant`, `empty_adapter`
+
+### CORS Configuration
+Configure Cross-Origin Resource Sharing (CORS) for frontend access:
+```bash
+# Allow specific origins (recommended for production)
+CORS_ORIGINS=http://localhost:3000,https://yourdomain.com,https://www.yourdomain.com
+
+# Allow all origins (default if not specified - use with caution in production)
+# CORS_ORIGINS=
+```
 
 ### OpenAI Configuration
 | Variable | Description | Default | Required |
@@ -216,9 +227,22 @@ AWS_REGION=us-east-1
 AWS_BEDROCK_MODEL=amazon.nova-pro-v1:0
 ```
 
+### CORS Configuration Examples
+```bash
+# Development setup - allow local frontend
+CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+
+# Production setup - specific domains only
+CORS_ORIGINS=https://yourdomain.com,https://www.yourdomain.com,https://app.yourdomain.com
+
+# Allow all origins (default - use with caution in production)
+# CORS_ORIGINS=
+```
+
 ### Debugging and Monitoring
 The server provides comprehensive logging on startup:
 ```
+🔒 CORS configured for origins: http://localhost:3000, https://yourdomain.com
 🚀 CopilotKit Runtime Server running on port 4000
 📡 Configured providers: 3
 🎯 Default provider: anthropic (claude-3-5-sonnet-20241022)
@@ -238,13 +262,15 @@ The server provides comprehensive logging on startup:
 - **Provider Validation**: Each provider is validated during startup with clear error messages
 - **Dependency Checks**: Missing dependencies (like LangChain packages) are handled gracefully
 - **Configuration Warnings**: Clear warnings for misconfigured providers
+- **CORS Protection**: Configurable CORS origins for secure frontend access
 
 ## Security Best Practices
-- Store API keys in environment variables or secure secret management
-- Use IAM roles for AWS Bedrock when possible
-- Enable CORS appropriately for your frontend domain
-- Consider rate limiting for production deployments
-- Use HTTPS in production environments
+- **API Keys**: Store API keys in environment variables or secure secret management
+- **AWS Credentials**: Use IAM roles for AWS Bedrock when possible
+- **CORS**: Configure specific origins instead of allowing all in production
+- **HTTPS**: Use HTTPS in production environments
+- **Rate Limiting**: Consider implementing rate limiting for production deployments
+- **Network Security**: Use proper network security groups and firewalls
 
 ## Contributing
 1. Fork the repository
